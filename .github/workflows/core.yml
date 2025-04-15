@@ -2,6 +2,9 @@ name: Build Core
 
 on:
   push:
+    branches:
+      - dev-next-e5
+      - merge-e5
   workflow_dispatch:
 
 jobs:
