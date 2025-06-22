@@ -48,34 +48,25 @@ jobs:
           # Android build
           CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android make build
 
-          # Linux build (amd64)
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -v -trimpath -ldflags "-s -w -buildid=" -tags ${TAGS} -o ./dist/sing-box-linux ./cmd/sing-box
-
-      - name: Upload Windows
-        uses: actions/upload-artifact@v4.3.1
-        with:
-          name: sing-box_windows
-          path: sing-box*.exe
-
-      - name: Upload Android
-        uses: actions/upload-artifact@v4.3.1
-        with:
-          name: sing-box_android
-          path: sing-box
+          # Linux build and compress
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -v -trimpath -ldflags "-s -w -buildid=" -tags ${TAGS} -o CrashCore ./cmd/sing-box
+          tar -czvf CrashCore.tar.gz CrashCore
 
       - name: Upload Linux
         uses: actions/upload-artifact@v4.3.1
         with:
           name: sing-box_linux
-          path: ./dist/sing-box-linux
+          path: CrashCore.tar.gz
 
       - name: Release to GitHub
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest-chizi-0618
+          tag_name: latest
           files: |
             sing-box*.exe
             sing-box
-            ./dist/sing-box-linux
+            CrashCore.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
