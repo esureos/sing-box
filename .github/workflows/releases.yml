@@ -44,7 +44,6 @@ jobs:
 
           # Windows build
           CGO_ENABLED=0 GOARCH=amd64 GOOS=windows GOAMD64=v3 make build -o ./dist/windows/sing-box
-          tar -czvf CrashCore.tar.gz CrashCore
 
           # Android build
           CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android make build -o ./dist/android/sing-box
