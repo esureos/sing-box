@@ -1,4 +1,4 @@
-name: Build Core
+name: Releases
 
 on:
   workflow_dispatch:
