@@ -19,7 +19,7 @@ jobs:
         source_branch: "*"
         destination_branch: "*"
         sync_tags: "true"
-        github_token: ${{ secrets.WORKFLOW_TOKEN }
+        github_token: ${{ secrets.WORKFLOW_TOKEN }}
 
   sync-chizi-0618:
     runs-on: ubuntu-latest
