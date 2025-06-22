@@ -49,7 +49,7 @@ jobs:
           CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android make build -o ./dist/android/sing-box
 
           # Linux build (amd64)
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux make build -o ./dist/linux/sing-box
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux GOAMD64=v3 make build -o ./dist/linux/sing-box
 
           #
           cd dist
