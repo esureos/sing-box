@@ -31,7 +31,7 @@ jobs:
       version: ${{ steps.outputs.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@v4
         with:
           ref: dev-next-chizi-0618
           fetch-depth: 0
@@ -61,65 +61,24 @@ jobs:
     strategy:
       matrix:
         include:
-          - { os: linux, arch: amd64, debian: amd64, rpm: x86_64, pacman: x86_64, openwrt: "x86_64" }
-          - { os: linux, arch: "386", go386: sse2, debian: i386, rpm: i386, openwrt: "i386_pentium4" }
-          - { os: linux, arch: "386", go386: softfloat, openwrt: "i386_pentium-mmx" }
-          - { os: linux, arch: arm64, debian: arm64, rpm: aarch64, pacman: aarch64, openwrt: "aarch64_cortex-a53 aarch64_cortex-a72 aarch64_cortex-a76 aarch64_generic" }
-          - { os: linux, arch: arm, goarm: "5", openwrt: "arm_arm926ej-s arm_cortex-a7 arm_cortex-a9 arm_fa526 arm_xscale" }
-          - { os: linux, arch: arm, goarm: "6", debian: armel, rpm: armv6hl, openwrt: "arm_arm1176jzf-s_vfp" }
-          - { os: linux, arch: arm, goarm: "7", debian: armhf, rpm: armv7hl, pacman: armv7hl, openwrt: "arm_cortex-a5_vfpv4 arm_cortex-a7_neon-vfpv4 arm_cortex-a7_vfpv4 arm_cortex-a8_vfpv3 arm_cortex-a9_neon arm_cortex-a9_vfpv3-d16 arm_cortex-a15_neon-vfpv4" }
-          - { os: linux, arch: mips, gomips: softfloat, openwrt: "mips_24kc mips_4kec mips_mips32" }
-          - { os: linux, arch: mipsle, gomips: hardfloat, debian: mipsel, rpm: mipsel, openwrt: "mipsel_24kc_24kf" }
-          - { os: linux, arch: mipsle, gomips: softfloat, openwrt: "mipsel_24kc mipsel_74kc mipsel_mips32" }
-          - { os: linux, arch: mips64, gomips: softfloat, openwrt: "mips64_mips64r2 mips64_octeonplus" }
-          - { os: linux, arch: mips64le, gomips: hardfloat, debian: mips64el, rpm: mips64el }
-          - { os: linux, arch: mips64le, gomips: softfloat, openwrt: "mips64el_mips64r2" }
-          - { os: linux, arch: s390x, debian: s390x, rpm: s390x }
-          - { os: linux, arch: ppc64le, debian: ppc64el, rpm: ppc64le }
-          - { os: linux, arch: riscv64, debian: riscv64, rpm: riscv64, openwrt: "riscv64_generic" }
-          - { os: linux, arch: loong64, debian: loongarch64, rpm: loongarch64, openwrt: "loongarch64_generic" }
+          - { os: linux, arch: amd64  }
+          - { os: linux, arch: arm64 }
 
           - { os: windows, arch: amd64 }
-          - { os: windows, arch: amd64, legacy_go: true }
-          - { os: windows, arch: "386" }
-          - { os: windows, arch: "386", legacy_go: true }
           - { os: windows, arch: arm64 }
 
-          - { os: darwin, arch: amd64 }
-          - { os: darwin, arch: arm64 }
-
           - { os: android, arch: arm64, ndk: "aarch64-linux-android21" }
-          - { os: android, arch: arm, ndk: "armv7a-linux-androideabi21" }
           - { os: android, arch: amd64, ndk: "x86_64-linux-android21" }
-          - { os: android, arch: "386", ndk: "i686-linux-android21" }
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@v4
         with:
           ref: dev-next-chizi-0618
           fetch-depth: 0
       - name: Setup Go
-        if: ${{ ! matrix.legacy_go }}
         uses: actions/setup-go@v5
         with:
           go-version: ^1.24
-      - name: Cache Legacy Go
-        if: matrix.require_legacy_go
-        id: cache-legacy-go
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/go_legacy
-          key: go_legacy_1236
-      - name: Setup Legacy Go
-        if: matrix.legacy_go && steps.cache-legacy-go.outputs.cache-hit != 'true'
-        run: |-
-          .github/setup_legacy_go.sh
-      - name: Setup Legacy Go 2
-        if: matrix.legacy_go
-        run: |-
-          echo "PATH=$HOME/go/go_legacy/bin:$PATH" >> $GITHUB_ENV
-          echo "GOROOT=$HOME/go/go_legacy" >> $GITHUB_ENV
       - name: Setup Android NDK
         if: matrix.os == 'android'
         uses: nttld/setup-ndk@v1
@@ -147,10 +106,6 @@ jobs:
           CGO_ENABLED: "0"
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-          GO386: ${{ matrix.go386 }}
-          GOARM: ${{ matrix.goarm }}
-          GOMIPS: ${{ matrix.gomips }}
-          GOMIPS64: ${{ matrix.gomips }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Android
         if: matrix.os == 'android'
@@ -171,20 +126,10 @@ jobs:
       - name: Set name
         run: |-
           DIR_NAME="sing-box-${{ needs.calculate_version.outputs.version }}-${{ matrix.os }}-${{ matrix.arch }}"
-          if [[ -n "${{ matrix.goarm }}" ]]; then
-            DIR_NAME="${DIR_NAME}v${{ matrix.goarm }}"
-          elif [[ -n "${{ matrix.go386 }}" && "${{ matrix.go386 }}" != 'sse2' ]]; then
-            DIR_NAME="${DIR_NAME}-${{ matrix.go386 }}"
-          elif [[ -n "${{ matrix.gomips }}" && "${{ matrix.gomips }}" != 'hardfloat' ]]; then
-            DIR_NAME="${DIR_NAME}-${{ matrix.gomips }}"
-          elif [[ "${{ matrix.legacy_go }}" == 'true' ]]; then
-            DIR_NAME="${DIR_NAME}-legacy"
-          fi
           echo "DIR_NAME=${DIR_NAME}" >> "${GITHUB_ENV}"
           PKG_VERSION="${{ needs.calculate_version.outputs.version }}"
           PKG_VERSION="${PKG_VERSION//-/\~}"
           echo "PKG_VERSION=${PKG_VERSION}" >> "${GITHUB_ENV}"
-
       - name: Archive
         run: |
           set -xeuo pipefail
@@ -204,7 +149,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ matrix.os }}_${{ matrix.arch }}${{ matrix.goarm && format('v{0}', matrix.goarm) }}${{ matrix.go386 && format('_{0}', matrix.go386) }}${{ matrix.gomips && format('_{0}', matrix.gomips) }}${{ matrix.legacy_go && '-legacy' || '' }}
+          name: binary-${{ matrix.os }}_${{ matrix.arch }}
           path: "dist"
   upload:
     name: Upload builds
@@ -215,7 +160,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@v4
         with:
           ref: dev-next-chizi-0618
           fetch-depth: 0
