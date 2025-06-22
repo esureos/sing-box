@@ -61,10 +61,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - { os: linux, arch: amd64  }
+          - { os: linux, arch: amd64, goamd64: v3  }
           - { os: linux, arch: arm64 }
 
-          - { os: windows, arch: amd64 }
+          - { os: windows, arch: amd64, goamd64: v3 }
           - { os: windows, arch: arm64 }
 
           - { os: android, arch: arm64, ndk: "aarch64-linux-android21" }
@@ -106,6 +106,7 @@ jobs:
           CGO_ENABLED: "0"
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
+          GOAMD64: ${{matrix.goamd64}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Android
         if: matrix.os == 'android'
