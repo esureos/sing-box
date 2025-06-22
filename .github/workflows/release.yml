@@ -33,6 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
+          ref: dev-next-chizi-0618
           fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -95,6 +96,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
+          ref: dev-next-chizi-0618
           fetch-depth: 0
       - name: Setup Go
         if: ${{ ! matrix.legacy_go }}
@@ -215,6 +217,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
+          ref: dev-next-chizi-0618
           fetch-depth: 0
       - name: Cache ghr
         uses: actions/cache@v4
