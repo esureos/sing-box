@@ -33,5 +33,5 @@ jobs:
         source_repo: "https://github.com/CHIZI-0618/sing-box.git"
         source_branch: "dev-next"
         destination_branch: "dev-next-chizi-0618"
-        sync_tags: "false"
+        sync_tags: "true"
         github_token: ${{ secrets.WORKFLOW_TOKEN }}
