@@ -219,7 +219,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract libcronet.so
         if: matrix.variant == 'purego' && matrix.naive
-        run: go run github.com/sagernet/cronet-go/cmd/build-naive@latest extract-lib --target ${{ matrix.os }}/${{ matrix.arch }} -o dist
+        run: |
+          cd ~/cronet-go
+          CGO_ENABLED=0 go run -v ./cmd/build-naive extract-lib --target ${{ matrix.os }}/${{ matrix.arch }} -o $GITHUB_WORKSPACE/dist
       - name: Build (glibc)
         if: matrix.variant == 'glibc'
         run: |
@@ -510,7 +512,10 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract libcronet.dll
-        run: go run github.com/sagernet/cronet-go/cmd/build-naive@latest extract-lib --target windows/${{ matrix.arch }} -o dist
+        run: |
+          $CRONET_GO_VERSION = Get-Content .github/CRONET_GO_VERSION
+          $env:CGO_ENABLED = "0"
+          go run -v "github.com/sagernet/cronet-go/cmd/build-naive@$CRONET_GO_VERSION" extract-lib --target windows/${{ matrix.arch }} -o dist
       - name: Archive
         run: |
           $DIR_NAME = "sing-box-${{ needs.calculate_version.outputs.version }}-windows-${{ matrix.arch }}"
